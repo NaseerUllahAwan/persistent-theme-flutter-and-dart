@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AppStyleModeNotifier extends ChangeNotifier {
-  bool mode = false; //0 for light and 1 for dark
+  final String key = "theme";
+  SharedPreferences _prefs;
+  ThemeNotifier() {
+    mode = false;
+    _loadFromPrefs();
+  }
+
+  bool mode = false;
+
+  //0 for light and 1 for dark
   Color primaryBackgroundColor = Colors.white;
   Color appBarBackgroundColor = Colors.cyan;
   Color boxColor = Colors.blue[50];
@@ -34,10 +44,36 @@ class AppStyleModeNotifier extends ChangeNotifier {
       dashboardColor = Colors.cyan;
       dashboardTextColor = Colors.red[600];
       dashboardIconColor = Colors.yellow[200];
-
       mode = false;
     }
-
+    _saveToPrefs();
     notifyListeners();
+  }
+
+  // ignore: non_constant_identifier_names
+  // ThemeNotifier() {
+  //   mode = false;
+  //   _loadFromPrefs();
+  // }
+
+  // toggleTheme() {
+  //   mode = !mode;
+  //   _saveToPrefs();
+  //   notifyListeners();
+  // }
+
+  _initPrefs() async {
+    if (_prefs == null) _prefs = await SharedPreferences.getInstance();
+  }
+
+  _loadFromPrefs() async {
+    await _initPrefs();
+    mode = _prefs.getBool(key) ?? true;
+    notifyListeners();
+  }
+
+  _saveToPrefs() async {
+    await _initPrefs();
+    _prefs.setBool(key, mode);
   }
 }
